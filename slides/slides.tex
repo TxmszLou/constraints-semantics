@@ -1,0 +1,140 @@
+\documentclass[xcolor=dvipsnames]{beamer}
+
+\usepackage{notation/modes}
+
+% \usetheme{Frankfurt}
+\usetheme{Madrid}
+
+\makeatother
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.6\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\makeatletter
+\setbeamertemplate{navigation symbols}{}
+
+
+\begin{document}
+
+\title{Constraints as a Denotational Semantics for Object Calculus}
+\subtitle{Midterm presentation}
+\author{Thomas Sixuan Lou}
+
+\frame{\titlepage}
+
+\section{Project Overview}
+
+\begin{frame}
+  \frametitle{Project Overview \& Motivations}
+  Motivation: We want to solve \emph{local equations} and \emph{local behaviors}
+  over arbitrary algebras.
+
+  \bigskip
+
+  \pause
+
+  \begin{itemize}
+    \item local equations (constraints) $\sim$ classes.
+      \pause
+    \item local solutions $\sim$ objects.
+      \pause
+    \item constraint resolution $\sim$ semantics for object calculus.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Object Calculus in a Nutshell}
+
+  \begin{itemize}
+    \item Values (``objects''/``instances'') of a type are classified into ``classes''.
+      \pause
+    \item Functions (``methods'') have different behaviors depending on the ``class'' of its arguments.
+      \pause
+    \item Each ``class'' enforces different internal structures and different behaviors when passed to methods.
+      \pause
+    \item We represent each class by a record of field and function types.
+      \pause
+    \item We represent the behavior of each method with a ``dispatch matrix''
+      \[ \prod_{c \in \mathcal{C}} \prod_{d \in \mathcal{D}} ( \IMode{\tau^c} \to \OMode{\rho_d}) \]
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Object Calculus: examples}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adding Constraints in Classes}
+
+  Now, we allow the declaration of \emph{local equations} in objects.\\
+
+  \pause
+
+  \[
+    Class \ \{ s \hookrightarrow A , t \hookrightarrow B , s = t \}
+  \]
+
+  \pause
+
+  An instance solves constraints declared by its class.
+
+  \pause
+
+  \[
+    Obj \ \{ s \mapsto a , t \mapsto b \} : Class \ \{ s \hookrightarrow A , t \hookrightarrow B , s = t \}
+  \]
+
+  \pause
+
+  and also first-order constraints!
+
+  \pause
+
+  \[
+    Class \ \{ &  s = t , \neg \phi , \phi_1 \land \phi_2 , \phi_1 \vee \phi_2 , \exists x . \phi \}\\
+  \]
+
+  % Classes have equality constraints between terms, and an object of that class
+  % contains data what values each variable maps to, and they should satisfy
+  % constraints declared in the class.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Object Calculus with Constraints: examples}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Problem Statement}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Calculus}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Semantics of Primitive Constraints}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Semantics of the Calculus}
+  
+\end{frame}
+
+\end{document}
