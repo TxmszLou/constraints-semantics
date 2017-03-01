@@ -1,0 +1,66 @@
+\usepackage{amsmath,amssymb,amsthm,mathtools,paralist,bm,mathrsfs,mdframed}
+\usepackage{
+  nameref, % \nameref
+  hyperref, % \autoref
+  cleveref, % \cref
+}
+
+% \usepackage{stmaryrd}
+
+\usepackage{jms-proof}
+\usepackage[french,english]{babel}
+\usepackage[autostyle]{csquotes}
+
+% \usepackage{tikz}
+% \usetikzlibrary{cd}
+
+\usepackage{notation/modes}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prob}[thm]{Problem}
+\newtheorem{innercustomthm}{Problem}
+\newenvironment{xprob}[1]
+  {\renewcommand\theinnercustomthm{#1}\innercustomthm}
+  {\endinnercustomthm}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{exa}[thm]{Example}
+
+\numberwithin{equation}{section}
+
+% \newcommand{\comment}[1]{}
+% \newcommand{\uncomment}[1]{#1}
+
+\newenvironment{solu}{\begin{proof}[Solution]}{\end{proof}}
+
+% notations
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand*{\mybox}[1]{\framebox{#1}}
+\renewcommand\enquote[1]{\foreignquote{french}{#1}}
+
+\newcommand\SetForm[2]{\left\{ #1 : #2 \right\}}
+\newcommand{\eval}[1]{\mathfrak{e}({#1})}
+
+\newcommand{\solver}{{\mathfrak{S}_{\mathcal{A},\mathcal{T}}}}
+\newcommand{\ctxt}[1]{{\mathcal{E}[{#1}]}}
+
+% \DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+
+\oddsidemargin-1mm
+\evensidemargin-0mm
+\textwidth6.5in
+\topmargin-15mm
+%\headsep25pt
+\textheight8.75in
+\footskip27pt
+
+\pagestyle{headings}
+
+% \sloppy
