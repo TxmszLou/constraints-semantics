@@ -1,6 +1,7 @@
 \documentclass[xcolor=dvipsnames]{beamer}
 
 \usepackage{notation/modes}
+\usepackage{stmaryrd}
 
 % \usetheme{Frankfurt}
 \usetheme{Madrid}
@@ -65,14 +66,34 @@
     \item We represent each class by a record of field and function types.
       \pause
     \item We represent the behavior of each method with a ``dispatch matrix''
-      \[ \prod_{c \in \mathcal{C}} \prod_{d \in \mathcal{D}} ( \IMode{\tau^c} \to \OMode{\rho_d}) \]
+      \[ \prod_{c \in \mathcal{C}} \prod_{d \in \mathcal{D}} ( \IMode{\tau^c} \rightharpoonup \OMode{\rho_d}) \]
   \end{itemize}
 
 \end{frame}
 
 \begin{frame}
   \frametitle{Object Calculus: examples}
-  
+
+  \begin{align*}
+    \onslide<1->{
+    \tau^{cart} & = Class \ \{ x : \mathbb{R} , y : \mathbb{R} \}\\
+    \tau^{polar} & = Class \ \{ r : \mathbb{R} , \theta : \mathbb{R} \}}\\
+    \onslide<2->{
+    p  &= Obj \ \{ x \mapsto 1 , y \mapsto 1\}  : \tau^{cart}\\
+    q  &= Obj \ \{ r \mapsto 1 , \theta \mapsto \frac{\pi}{4}\}  : \tau^{polar}}\\
+    \onslide<3->{
+    e & :
+    \begin{bmatrix}
+      \tau^{cart} \to \rho_{distSq} & \tau^{cart} \to \rho_{xCoord}\\
+      \tau^{polar} \to \rho_{distSq} & \tau^{polar} \to \rho_{xCoord}
+    \end{bmatrix}\\
+    e & =
+    \begin{bmatrix}
+      \lambda p : \tau^{cart} . (p.x^2 + p.y^2) & \lambda p : \tau^{cart} . p.x\\
+      \lambda p : \tau^{polar} . (p.r^2)  & \lambda p : \tau^{polar} . (p.r \times \cos(p.\theta))
+    \end{bmatrix}}
+  \end{align*}
+
 \end{frame}
 
 \begin{frame}
@@ -83,7 +104,7 @@
   \pause
 
   \[
-    Class \ \{ s \hookrightarrow A , t \hookrightarrow B , s = t \}
+    Class \ \{ s : A , t : B , s = t \}
   \]
 
   \pause
@@ -93,7 +114,7 @@
   \pause
 
   \[
-    Obj \ \{ s \mapsto a , t \mapsto b \} : Class \ \{ s \hookrightarrow A , t \hookrightarrow B , s = t \}
+    Obj \ \{ s \mapsto a , t \mapsto b \} : Class \ \{ s : A , t : B , s = t \}
   \]
 
   \pause
@@ -103,7 +124,7 @@
   \pause
 
   \[
-    Class \ \{ &  s = t , \neg \phi , \phi_1 \land \phi_2 , \phi_1 \vee \phi_2 , \exists x . \phi \}\\
+    Class \ \{ s = t , \neg \phi , \phi_1 \land \phi_2 , \phi_1 \vee \phi_2 , \exists x . \phi \}
   \]
 
   % Classes have equality constraints between terms, and an object of that class
@@ -113,28 +134,125 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Object Calculus with Constraints: examples}
+  \frametitle{Example: classes as problems}
+
+  An arithmetic problem class:
+
+  \begin{gather*}
+    \onslide<1->{Class \ \{ x : \mathbb{N}, y : \mathbb{N} , (3 + x) \cdot 2 = y \land y = 2 \cdot 3 + 2 \}}\\
+    \onslide<2->{\text{evaluate!}\\\Downarrow\\
+    \llbracket Class \ \{ x : \mathbb{N}, y : \mathbb{N} , (3 + x) \cdot 2 = y \land
+    y = 2 \cdot 3 + 2 \} \rrbracket_{AE}}\\
+    \onslide<3->{\Downarrow\\
+    Class \ \{ x : \mathbb{N}, y : \mathbb{N} , \llbracket (3 + x) \cdot 2 = y
+    \rrbracket_{AE} \land \llbracket y = 2 \cdot 3 + 2 \rrbracket_{AE} \}}\\
+    \onslide<4->{\Downarrow\\
+    Class \ \{ x : \mathbb{N}, y : \mathbb{N} , (3 + x) \cdot 2 = y \land y = 8 \}}
+  \end{gather*}
   
 \end{frame}
 
 \begin{frame}
-  \frametitle{Problem Statement}
+  \frametitle{Example: objects as solutions}
+
+  Possible solutions to a problem given by the semantics of equations
+
+  \[
+    Obj \ \{ x \mapsto 1 , y \mapsto 8\} : C
+  \]
+
+  We denote the ``solving'' process into the CLP land:\\
+  let $\theta = \{x \mapsto 1 , y \mapsto 8\}$
+  \begin{gather*}
+    \onslide<1->{
+    \llbracket Class \ \{ x : \mathbb{N}, y : \mathbb{N} , (3 + x) \cdot 2 = y \land
+    y = 8 \} \rrbracket(\theta)}\\
+    \onslide<2->{
+    \Downarrow\\
+    \OMode{8 = \llbracket (3 + x) \cdot 2 \rrbracket\theta \equiv \llbracket y
+    \rrbracket \theta}\\
+    \OMode{8 = \llbracket y \rrbracket \theta = \llbracket 8 \rrbracket \theta}}\\
+    \onslide<3->{
+    \Downarrow\\
+    \{\theta\}}
+  \end{gather*}
   
 \end{frame}
 
 \begin{frame}
-  \frametitle{The Calculus}
+  \frametitle{OO : inheritance}
+
+  As in ordinary object calculus, there are inheritance to create class
+  hierarchies.
+
+  \begin{align*}
+    \tau^{cart} & = Class \ \{ x : \mathbb{R} , y : \mathbb{R} \}\\
+    \tilde{\tau}^{cart} & <: \tau^{cart} = Class \ \{ color : colorT, \color{gray} x : \mathbb{R} , y : \mathbb{R}\}
+  \end{align*}
+
+  same for constraints
+
+  \begin{align*}
+    \tilde{\tau}^{cart} & <: \tau^{cart} = Class \ \{ x + y = 1 , \color{gray} x : \mathbb{R} , y : \mathbb{R} \}\\
+    \hat{\tau}^{cart}   & <: \tilde{tau}^{cart} = Class \ \{ x = 1  \color{gray} \land x + y = 1, x : \mathbb{R} , y : \mathbb{R} \}
+  \end{align*}
+  
   
 \end{frame}
 
 \begin{frame}
-  \frametitle{Semantics of Primitive Constraints}
-  
+  \frametitle{OO : methods}
+
+  Recall methods are (internally) represented as a dispatch matrix, when adding
+  method to a class, we are adding a column vector into the class.
+
+  \begin{align*}
+    \tilde{\tau}^{cart} & <: \tau^{cart} = Class \ \{ dist : \prod_{c \in C} \tau^c \to \mathbb{R} \}\\
+    \hat{\tau}^{cart} & <: \tilde{\tau}^{cart} = Class \ \{ dist(self) = 1\}
+  \end{align*}
+
+  \pause
+
+  \[
+    Obj \{ x \mapsto 1 , y \mapsto 0\} : \hat{\tau}^{cart}
+  \]
+
 \end{frame}
 
 \begin{frame}
-  \frametitle{Semantics of the Calculus}
+  \frametitle{Dispatch methods}
+
+  Let $\theta = \{x \mapsto 1 , y \mapsto 0\}$,
+
+  \begin{gather*}
+    \llbracket Class \{ x : \mathbb{R} , y : \mathbb{R} , dist : \prod_{c \in
+      \mathcal{C}} \tau^c \to \mathbb{R}\} , dist(self) = 1  \rrbracket\theta\\
+    \Downarrow\\
+    \OMode{\llbracket dist(self) \rrbracket\theta \stackrel{\text{dispatch}}{=}
+      \llbracket (\lambda p : \tau^{cart} . (p.x^2 + p.y^2)) self
+      \rrbracket\theta}\\
+    \OMode{= \llbracket x^2 + y^2 \rrbracket\theta = 1 = \llbracket 1
+      \rrbracket\theta}\\
+    \Downarrow\\
+    \{ \theta \}
+  \end{gather*}
   
 \end{frame}
+
+
+% \begin{frame}
+%   \frametitle{The Calculus}
+  
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Semantics of Primitive Constraints}
+  
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{Semantics of the Calculus}
+  
+% \end{frame}
 
 \end{document}

@@ -1,9 +1,11 @@
-\usepackage{amsmath,amssymb,amsthm,mathtools,paralist,bm,mathrsfs,mdframed}
+\usepackage{amsmath,amssymb,amsthm,mathtools,paralist,bm,mdframed}
 \usepackage{
   nameref, % \nameref
   hyperref, % \autoref
   cleveref, % \cref
 }
+
+\usepackage{mathrsfs}
 
 % \usepackage{stmaryrd}
 
@@ -14,8 +16,15 @@
 % \usepackage{tikz}
 % \usetikzlibrary{cd}
 
-\usepackage{notation/modes}
+% \usepackage{notation/modes}
+% \newtheoremstyle{break}
+%   {\topsep}{\topsep}%
+%   {\itshape}{}%
+%   {\bfseries}{}%
+%   {\newline}{}%
+% \theoremstyle{break}
 
+\theoremstyle{plain}
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{cor}[thm]{Corollary}
 \newtheorem{lem}[thm]{Lemma}
@@ -31,6 +40,9 @@
 \newtheorem{exa}[thm]{Example}
 
 \numberwithin{equation}{section}
+% \usepackage{unicode-math}
+% \setmathfont{Latin Modern Math}
+% \setmathfont[range={\mathscr,\mathbfscr}]{XITS Math}
 
 % \newcommand{\comment}[1]{}
 % \newcommand{\uncomment}[1]{#1}
@@ -49,17 +61,19 @@
 \newcommand{\eval}[1]{\mathfrak{e}({#1})}
 
 \newcommand{\solver}{{\mathfrak{S}_{\mathcal{A},\mathcal{T}}}}
+\newcommand{\solverP}[1]{{\mathfrak{S}_{#1}}}
 \newcommand{\ctxt}[1]{{\mathcal{E}[{#1}]}}
+\newcommand{\ectxt}{{\langle  \rangle}}
 
-% \DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
 
-\oddsidemargin-1mm
-\evensidemargin-0mm
-\textwidth6.5in
-\topmargin-15mm
-%\headsep25pt
-\textheight8.75in
-\footskip27pt
+% \oddsidemargin-1mm
+% \evensidemargin-0mm
+% \textwidth6.5in
+% \topmargin-15mm
+% %\headsep25pt
+% \textheight8.75in
+% \footskip27pt
 
 \pagestyle{headings}
 

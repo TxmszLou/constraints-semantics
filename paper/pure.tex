@@ -3,57 +3,96 @@
 In this section, we will define $\textbf{O}_c$, an pure object-based calculus with
 constraints introduced through a special binder $\iota(o).e$.\\
 
-The calculus is parametrized over an algebra and an theory on that algebra.
-Intuitively, the algebra describes the meanings of those primitive syntactic
-expressions. An theory defines a equivalence relation on that algebra, which the
-solver will solve constraints with respect to.
-% providing the
-% meaning of the relation $\sim$
-% For example, if we have an instance of the theory parametrized by the following arithmetic algebra:
+The calculus is parametrized over an algebra and an theory on that algebra
+(definitions below are similar to those formulated in \cite{burris1981course, Birkhoff_1935}).
+Intuitively, the algebra describes what are the primitive expressions in our
+calculus. An theory defines a equivalence relation on that algebra, which our
+calculus should be invariant under. In addition, the solver will solve
+constraints with respect to the theory defined on the algebra.
 
-\begin{exa}[Modular arithmetic]
-  The arithmetic algebra $AE = \langle \mathbb{N} , 0, 1, +, \times \rangle$ is
-  an algebra over with carriers of natural numbers $\mathbb{N}$, characteristic
-  elements $0,1$ and the following binary operations:
-  \begin{align*}
-    +      : \mathbb{N} \to \mathbb{N} \to \mathbb{N}\\
-    \times : \mathbb{N} \to \mathbb{N} \to \mathbb{N}
-  \end{align*}
-  satisfying
-  \begin{alignat*}{2}
-      0 + x \doteq x \doteq x + 0 \quad && x + (y + z) \doteq (x + y) + z\\
-      1 \times x \doteq x \doteq x \times 1 \quad && x \times (y \times z) \doteq (x \times y) \times z
-  \end{alignat*}
+\subsection{Algebra and Theory}
 
-  $\mathbb{N}_m$ is an theory on $AE$ with the following equivalence relation:
+\begin{defn}[Type]
+  A set of function symbols $\mathscr{F}$ is called an \emph{type} if for every
+  $f \in \mathscr{F}$, it is assigned a non-negative integer $n$, called the
+  \emph{arity} of $f$. Let $\mathscr{F}_k$ denote the set of function symbols
+  with arity $k$.
+\end{defn}
+
+\begin{defn}[Algebra]
+  An \emph{algebra} $\mathcal{A}$ of type $\mathscr{F}$ is a pair $\langle A , F
+  \rangle$, where $A \neq \varnothing$ is called a \emph{carrier set} and $F$ is
+  a set of finitary operations on $A$ so that for every $n$-ary function symbol
+  $f \in \mathscr{F}_{n}$, there is an $n$-ary operation $f^{\mathcal{A}}$ on $A$
+  (i.e. $f^{\mathcal{A}} : A^{n} \to A$).
+
+  The map from every $f \in \mathscr{F}$ to $f^{\mathcal{A}}$ is called an \emph{interpretation}.
+
+  The superscript $(-)^{\mathcal{A}}$ is often omitted when the context is
+  clear.
+\end{defn}
+
+\begin{defn}[Language]
+  Given a set of set of distinct objects $\textbf{X}$ (variables), and a type
+  $\mathscr{F}$, a language $\mathcal{L}(\textbf{X},\mathscr{F})$ of type
+  $\mathscr{F}$ over $\textbf{X}$ is the smallest set such that
+  \begin{enumerate}
+    \item $\textbf{X} \cup \mathscr{F}_0 \subset \mathcal{L}(\textbf{X},\mathscr{F})$
+    \item if $p_1 , \ldots , p_n \in \mathcal{L}(\textbf{X},\mathscr{F})$, $f \in \mathscr{F}_n$, then the
+      string $f(p_1, \ldots, p_n) \in \mathcal{L}(\textbf{X},\mathscr{F})$.
+  \end{enumerate}
+
+  The parameters $\textbf{X}$ and $\mathscr{F}$ are omitted when the context is clear.
+\end{defn}
+
+\begin{defn}[Theory]
+  Given type $\mathscr{F}$, a \emph{theory} ``$\sim$'' is a relation between terms
+  in $\mathcal{L}(\textbf{X},\mathscr{A})$, written as $p(x_1, \ldots, x_n) \sim
+  q(x_1, \ldots, x_n)$. Arguments are often omitted when we are not making
+  pointwise statements.\\
+
+  An algebra $\mathcal{A}$ of type $\mathscr{F}$ satisfies $p \sim q$ if and
+  only if
   \[
-    a \sim b \text{ iff } a \equiv b \pmod{m}
+    \forall a_1 , \ldots a_n \in A \left[ p^{\mathcal{A}}(a_1 , \ldots , a_n) =
+      q^{\mathcal{A}}(a_1 , \ldots , a_n) \right]
   \]
+\end{defn}
 
-  % $\mathbb{N} /_\leq$ is a theory on $AE$ with:
-  % \[
-  %   a \sim b \text{ iff } a \leq b
-  % \]
+\begin{exa}[Modular arithmetic]\label{E:modz}
+  The arithmetic algebra $\mathbb{Z}/_{m} = \langle \mathbb{Z} , 0, 1, m, +, \times \rangle$ is
+  an algebra over with carriers of integers $\mathbb{Z}$, characteristic
+  elements $0,1 : \varnothing \to \mathbb{N}$ and the following binary operations:
+  \[
+    +,  \times      : \mathbb{Z}^2 \to \mathbb{Z}
+  \]
+  satisfying
+  \begin{alignat*}{3}
+      x + y & \sim x \times y & x \times y & \sim y \times x\\
+      0 + x & \sim x          & x + (y + z) & \sim (x + y) + z\\
+      1 \times x & \sim x     & x \times (y \times z) & \sim (x \times y) \times z\\
+      x \times (y + z) & \sim x \times y + x \times z \quad & x + y \times m & \sim x
+  \end{alignat*}
 \end{exa}
 
 \begin{exa}[Boolean algebra]
   A distributive lattice $\mathcal{L}$ on set $L$ is the algebra $\langle L,
-  \land, \vee \rangle$ with operations $\land, \vee : L \to L \to L$ satisfying
+  \land, \vee \rangle$ with operations $\land, \vee : L^2 \to L$ satisfying
   \begin{gather*}
     \begin{aligned}
-      x \land x & \doteq x\\
-      x \land y & \doteq y \land x\\
-      x \vee y  & \doteq y \vee x\\
-      x \land (y \land z) & \doteq (x \land y) \land z\\
-      x \vee (y \vee z) & \doteq (x \vee y) \vee z
+      x \land x & \sim x\\
+      x \land y & \sim y \land x\\
+      x \vee y  & \sim y \vee x\\
+      x \land (y \land z) & \sim (x \land y) \land z\\
+      x \vee (y \vee z) & \sim (x \vee y) \vee z
     \end{aligned}
     \qquad
     \begin{aligned}
-      x \vee x & \doteq x\\
-      x \vee (x \land y) & \doteq x\\
-      x \land (x \vee y) & \doteq x\\
-      x \land (y \vee z) & \doteq (x \land y) \vee (x \land z)\\
-      x \vee (y \land z) & \doteq (x \vee y) \land (x \vee z)
+      x \vee x & \sim x\\
+      x \vee (x \land y) & \sim x\\
+      x \land (x \vee y) & \sim x\\
+      x \land (y \vee z) & \sim (x \land y) \vee (x \land z)\\
+      x \vee (y \land z) & \sim (x \vee y) \land (x \vee z)
     \end{aligned}
   \end{gather*}
 
@@ -62,22 +101,24 @@ solver will solve constraints with respect to.
   operator $' : B \to B$, satisfying
   \begin{equation*}
     \begin{aligned}
-      x \land 0 \doteq 0\\
-      x \vee 1 \doteq 1\\
-      x' \land x \doteq 0
+      x \land 0 \sim 0\\
+      x \vee 1 \sim 1\\
+      x' \land x \sim 0
     \end{aligned}
     \qquad
     \begin{aligned}
-      x \land 1 \doteq x\\
-      x \vee 0 \doteq x\\
-      x' \vee x \doteq 1
+      x \land 1 \sim x\\
+      x \vee 0 \sim x\\
+      x' \vee x \sim 1
     \end{aligned}
   \end{equation*}
 
-  $\textbf{Su}(X)$ (subsets of $X$) is a theory on $\mathcal{B}$ with
-  the following equivalence relation:
+  An instance of boolean algebra is $\textbf{Su}(X)$ (subsets of $X$) with $B =
+  \mathcal{P}(X)$, $0 = \varnothing$, $1$ is any singleton set. The theory on
+  $\textbf{Su}(X)$ is interpreted as (note this of the semantics portion, which
+  is independent from the syntactic/algebraic definitions):
   \[
-    x \sim y \text{ iff } \forall z . z \in x \leftrightarrow z \in y
+    x \sim y \text{ iff } \forall z \left[ z \in x \leftrightarrow z \in y \right]
   \]
 \end{exa}
 
@@ -90,20 +131,19 @@ solve equivalence constraints of arbitrary interpretations.\\
   
 % \end{defn}
 
-For example, an solver $\mathfrak{S}$ over $\mathbb{N}/_{7}$ is expected to
+For example, an solver $\mathfrak{S}$ over $\mathbb{Z}/_{7}$ is expected to
 be able to obtain a solution from constraints on the relation $\pmod{7}$: given
-constraint $c = a \sim 0 \land b \sim a$
-
-\[
-  c \stackrel{\mathfrak{S}}{\rightsquigarrow} \{ a \mapsto 7 , b \mapsto 0\}
-\]
+constraint $c = x \sim 0 \land y \sim x$ (where $x$ and $y$ are objects in the
+set of variable $\textbf{X}$), it should return a solution $\{ x \mapsto 7 , y
+\mapsto 0\}$. Which solution to return is up to specific implementations of
+solvers.
 
 \subsection{Syntax Formalization}
 
 We now formally introduce the calculus. The syntax of the calculus is
-constructed from a language $\mathcal{L}$, and various special syntactical
+constructed from a language $\mathcal{L}(\textbf{X},\mathscr{F})$, and various special syntactical
 constructs. There are two syntactical categories, the object fragment
-($a$) and the constraint fragment ($c,e$). They are separated so that rules
+(``$a$'') and the constraint fragment (``$c$'',``$e$''). They are separated so that rules
 involving constraint solving are easier to write.\\
 
 The complete syntax definition is given in \Cref{Oc:syntax}. Each object is
@@ -112,8 +152,15 @@ and $\langle \text{constraint name} , \text{constraint} \rangle$ pairs. Each
 method (resp. constraint) is given as a binder ``$\varsigma(x).a$'' (resp.
 ``$\iota(x).e$''), where $x$ is bound to which object it's invoked from.\\
 
+Constraints in our calculus are of the form $\iota(x) . e$, where $x$ is a
+variable which will bind to the object this constraint is invoked from before
+solving the constraint term $e$. Constraint terms are constructed from atomic
+$\sim$-relations and using connectives including $\land$, $\vee$ and $\neg$.
+Notice, there are no $\exists$ quantifications on constraint terms since every
+name(label) is already existentially quantified in each of the object.\\
+
 We define free variables of $\textbf{O}_c$ terms and substitutions in
-\Cref{Oc:fv} and \Cref{Oc:subst} respectively.
+\Cref{Oc:fv} and \Cref{Oc:subst} respectively.\\
 
 \begin{figure*}[t]
 % \begin{mdframed}
@@ -126,21 +173,21 @@ We define free variables of $\textbf{O}_c$ terms and substitutions in
           & e_1 \land e_2  && \quad \text{conjunction}\\
           & e_1 \vee e_2   && \quad \text{disjunction}\\
           & \neg e_1       && \quad \text{negation}\\
-          & \exists x . e_1 && \quad \text{decl of local variable}\\
+          % & \exists l . e_1 && \quad \text{decl of local variable}\\
      \mathcal{E}[-] & && \text{context}
     \end{aligned}
     \quad
     \begin{aligned}
       a,b & ::= && \text{terms}\\
           & t(a_1, \ldots, a_n)   && \quad \text{primitive terms } t \in \mathcal{L} \\
-          & l,r  && \quad \text{labels}\\
+          % & l,r  && \quad \text{labels}\\
           & x    && \quad \text{variable}\\
           & a.l_i \quad a.r_i && \quad \text{method/constraint invocation}\\
           & [ l_i = \varsigma (x) . b_i , r_j = c_j ]_{\substack{i = 1..n\\j = 1..m}} && \quad \text{object}\\
           & a.l_i \Leftarrow \varsigma (x) . b \quad a.r_i \Leftarrow c && \quad \text{method/constraint update}
     \end{aligned}
   \end{alignat*}
-  \caption{Syntax of $\textbf{O}_c$ under theory $T$ on algebra $A$}
+  \caption{Syntax of $\textbf{O}_c$ under theory $\mathcal{T}$ on algebra $\mathcal{A}$}
   \label{Oc:syntax}
 % \end{mdframed}
 \end{figure*}
@@ -152,8 +199,8 @@ We define free variables of $\textbf{O}_c$ terms and substitutions in
       FV(t(a_1 , \ldots , a_n)) & = \bigcup_{i \in [n]} FV(a_i)\\
       FV(x) & = \{x\}\\
       FV(l) & = \{l\}\\
-      FV(a.l_i) & = FV(a)\\
-      FV(a.r_i) & = FV(a)\\
+      FV(a.l_i) & = FV(a) \cup \{l_i\}\\
+      FV(a.r_i) & = FV(a) \cup \{r_i\}\\
       FV([l_i = \varsigma(x) . b_i , r_j = c_j]_{\substack{i \in [n]\\j \in [m]}})
       & = \bigcup_{i \in [n]} FV(\varsigma(x) . b_i) \cup \bigcup_{j \in [m]} FV(c_j)\\
       FV(a.l_i \Leftarrow \varsigma(x) . b) & = FV(a) \cup FV(\varsigma(x) . b)
@@ -166,8 +213,8 @@ We define free variables of $\textbf{O}_c$ terms and substitutions in
       FV(a_1 \sim a_2) & = FV(a_1) \cup FV(a_2)\\
       FV(e_1 \land e_2) & = FV (e_1) \cup FV(e_2)\\
       FV(e_1 \vee e_2) & = FV (e_1) \cup FV(e_2)\\
-      FV(\neg e) & = FV (e)\\
-      FV(\exists x . e) & = FV(e) \backslash \{x\}
+      FV(\neg e) & = FV (e)
+      % FV(\exists l . e) & = FV(e) \backslash \{l\}
     \end{aligned}
   \end{alignat*}
   \caption{Free variables in $\textbf{O}_c$}
@@ -178,24 +225,24 @@ We define free variables of $\textbf{O}_c$ terms and substitutions in
   \centering
   \begin{alignat*}{2}
     \begin{aligned}
-      [a/y]t(a_1 , \ldots , a_n) & = t([a/y]a_1 , \ldots , [a/y]a_n)\\
-      [a/y]x & = x\\
-      [a/y]y & = a\\
-      [a/y]b.l_i & = ([a/y]b).l_i\\
-      [a/y]b.r_i & = ([a/y]b).r_i\\
-      [a/y]\varsigma(x) . b & = \varsigma(z) [a/y][z/x]b\\
-      [a/y]\iota(x) . b & = \iota(z) [a/y][z/x]b\\
-      [a/y][l_i = \varsigma(x) . b_i , r_j = c_j] & = [l_i = [a/y]\varsigma(x) . b_i , r_j = [a/y]c_j]\\
+      & [a/y]t(a_1 , \ldots , a_n)  = t([a/y]a_1 , \ldots , [a/y]a_n)\\
+      & [a/y]x  = x\\
+      & [a/y]y  = a\\
+      & [a/y]b.l_i  = ([a/y]b).l_i\\
+      & [a/y]b.r_i  = ([a/y]b).r_i\\
+      & [a/y]\varsigma(x) . b  = \varsigma(z) [a/y][z/x]b\\
+      & [a/y]\iota(x) . b  = \iota(z) [a/y][z/x]b\\
+      & [a/y][l_i = \varsigma(x) . b_i , r_j = c_j]  = [l_i = [a/y]\varsigma(x) . b_i , r_j = [a/y]c_j]
     \end{aligned}
     \quad
     \begin{aligned}
-      [a_1/y]a.l_i \Leftarrow \varsigma(x) . b & = ([a_1/y]a).l_i \Leftarrow [a_1/x]\varsigma(x). b\\
-      [a_1/y]a.r_i \Leftarrow c & = ([a_1/y]a).r_i \Leftarrow [a_1/x]c\\
-      [a/y]a_1 \sim a_2 & = [a/y]a_1 \sim [a/y]a_2\\
-      [a/y]e_1 \land e_2 & = [a/y]e_1 \land [a/y]e_2\\
-      [a/y]e_1 \vee e_2 & = [a/y]e_1 \vee [a/y]e_2\\
-      [a/y]\neg e & = \neg ([a/y]e)\\
-      [a/y]\exists x . e & = \exists z . ([a/y][z/x]e)\\
+      & [a_1/y]a.l_i \Leftarrow \varsigma(x) . b  = ([a_1/y]a).l_i \Leftarrow [a_1/x]\varsigma(x). b\\
+      & [a_1/y]a.r_i \Leftarrow c  = ([a_1/y]a).r_i \Leftarrow [a_1/x]c\\
+      & [a/y]a_1 \sim a_2  = [a/y]a_1 \sim [a/y]a_2\\
+      & [a/y]e_1 \land e_2  = [a/y]e_1 \land [a/y]e_2\\
+      & [a/y]e_1 \vee e_2  = [a/y]e_1 \vee [a/y]e_2\\
+      & [a/y]\neg e  = \neg ([a/y]e)
+      % [a/y]\exists l . e & = \exists z . ([a/y][z/l]e)\\
     \end{aligned}
   \end{alignat*}
   \caption{Substitution in $\textbf{O}_c$}
@@ -213,34 +260,34 @@ adding rules of evaluating arbitrary terms into our calculus. Thus, we only need
 to focus the core object and constraint solving fragment in our calculus.
 
 \begin{defn}[Evaluation]
-  Let $\mathcal{L}$ be a language, let $\mathcal{A} = \langle A , \{f_n\}_n
-  \rangle$ be an algebra and $\mathscr{I}$ be an interpretation of the language
-  to the algebra. Let $f_{\mathscr{I}}$ denote the function $f$ in the language
-  under interpretation $\mathscr{I}$ (it will be a function in $\mathcal{A}$). A
-  \emph{evaluation} of term $a$ is defined inductively in \Cref{Oc:evaluation}.
-  The evaluated term is called a \emph{generalized term}.
-  \begin{figure*}[t]
+  Evaluation is the extended notion of interpretation from languages to algebras.
+
+  Let $\mathcal{L}(\textbf{X}, \mathscr{F})$ be a language, let $\mathcal{A} = \langle A , F \rangle$ be
+  an algebra. A \emph{evaluation} of term $a$ is defined inductively in
+  \Cref{Oc:evaluation}. The evaluated term is called a \emph{generalized term}.
+
+  \begin{figure*}[h]
     \centering
-  \begin{align*}
-    \begin{aligned}
-      & \eval{f(a_1 , \ldots, a_2)} = f_{\mathscr{I}}(\eval{a_1} , \ldots , \eval{a_n})\\
-      & \eval{x} = x\\
-      & \eval{a.l_i} = \eval{a}.l_i\\
-      & \eval{a.r_i} = \eval{a}.r_i\\
-      & \eval{[l_i = \varsigma(x) . b_i , r_i = c_i]} =  [l_i = \varsigma(x) . \eval{b_i} , r_i = \eval{c_i}]\\
-      & \eval{a.l_i \Leftarrow \varsigma (x) . b} = \eval{a}.l_i \Leftarrow \varsigma(x) . \eval{b}\\
-      & \eval{a.r_i \Leftarrow c} = \eval{a}.l_i \Leftarrow \eval{c}
-    \end{aligned}
-        \quad
-    \begin{aligned}
-      & \eval{\iota(x) . e} = \iota(x) . \eval{e}\\
-      & \eval{a_1 \sim a_2} = \iota(a_1) \sim \iota(a_2)\\
-      & \eval{e_1 \land e_2} = \eval{e_1} \land \eval{e_2}\\
-      & \eval{e_1 \vee e_2}   = \eval{e_1} \vee \eval{e_2}\\
-      & \eval{\neg e}         = \neg \eval{e}\\
-      & \eval{\exists x . e } = \exists x . \eval{e}\\
-    \end{aligned}
-  \end{align*}
+    \begin{alignat*}{2}
+      \begin{aligned}
+        & \eval{f(a_1 , \ldots, a_2)} = f^{\mathcal{A}}(\eval{a_1} , \ldots , \eval{a_n})\\
+        & \eval{x} = x\\
+        & \eval{a.l_i} = \eval{a}.l_i\\
+        & \eval{a.r_i} = \eval{a}.r_i\\
+        & \eval{[l_i = \varsigma(x) . b_i , r_i = c_i]} =  [l_i = \varsigma(x) . \eval{b_i} , r_i = \eval{c_i}]\\
+        & \eval{a.l_i \Leftarrow \varsigma (x) . b} = \eval{a}.l_i \Leftarrow \varsigma(x) . \eval{b}\\
+        & \eval{a.r_i \Leftarrow c} = \eval{a}.l_i \Leftarrow \eval{c}
+      \end{aligned}
+          \quad
+      \begin{aligned}
+        & \eval{\iota(x) . e} = \iota(x) . \eval{e}\\
+        & \eval{a_1 \sim a_2} = \iota(a_1) \sim \iota(a_2)\\
+        & \eval{e_1 \land e_2} = \eval{e_1} \land \eval{e_2}\\
+        & \eval{e_1 \vee e_2}   = \eval{e_1} \vee \eval{e_2}\\
+        & \eval{\neg e}         = \neg \eval{e}\\
+        % & \eval{\exists l . e } = \exists l . \eval{e}\\
+      \end{aligned}
+    \end{alignat*}
     \caption{Evaluation}
     \label{Oc:evaluation}
   \end{figure*}
@@ -252,107 +299,250 @@ to focus the core object and constraint solving fragment in our calculus.
 Let $\solver$ be a solver parametrized by an algebra $\mathcal{A}$ and a theory
 $\mathcal{T}$. It interacts with our calculus by the following satisfaction
 judgment $o(c) \models_{\solver} S$, where $o$ is an object, $S$ is a set of
-objects and $c$ is a constraint. The judgment means: $S$ is the set of objects that
+objects and $c$ is a constraint. The judgment reads: $S$ is the set of objects that
 satisfies constraint $c$ when evaluated from an particular object $o$.\\
 
 This satisfaction judgment gives the semantics of equations (more generally,
 $\sim$-relations) in our calculus. If we leave out the constraint $c$ and the
 initial object $o$ is the judgment, it induces a semantic map on constraints:
-
 \[
   \llbracket c \rrbracket : Object \to \mathcal{P}(Object)
 \]
-
-The link between the semantic map and the judgment is established by:
-
+Therefore, having defined the satisfaction judgment of constraints on objects,
+the semantics for constraints are defined through the following relationship:
 \[
   o(c) \models_{\solver} \llbracket c \rrbracket (o)
 \]
+On the other hand, the judgment is an externalization of the semantics of
+constraints, this formulation hides away the computational contents in interpreting
+constraints.\\
 
-\begin{figure*}[h]
+We may sometimes want to construct a new construct $c$ by combining several
+constraints $\{c_i\}_{i \in I}$. Aside from creating a new object with all of
+$c_i$ inserted, we may also internalize it using first-order connectives we've
+defined earlier.  This leads us to define the following auxiliary
+functions:
+\begin{align*}
+  (\iota(x) . e_1) \otimes (\iota(x) . e_2) \triangleq \iota(x) . e_1 \land e_2\\
+  (\iota(x) . e_1) \oplus (\iota(x) . e_2) \triangleq \iota(x) . e_1 \vee e_2
+\end{align*}
+There is another series of design decision to make involving when the solver is
+fired, when the object is updated and how the object's methods are updated in
+solving constraints. In our formulation of the calculus, we insist the
+following:
+
+\begin{enumerate}
+  \item The only place the solver interacts with the satisfaction judgment is on
+    the resolution of $\sim$-relations that present as premises of multiple satisfaction rules.
+  \item Constraints are solved eagerly, meaning (1) on constraint invocation the
+    rule $\textsc{red-c-update}$ is fired (given in the next section) ensuring
+    the resulting object satisfies the newly declared constraint and (2) on
+    method updates, the rule $\textsc{red-m-update}$ is fired to get a new
+    solution from the newly updated method.
+  \item Objects are updated monotonically, on constraint update, we do not
+    attempt to backtrack and first solve with the rest of the constraints,
+    instead we simply run the solver on the current object (solution).
+  \item Method updates are all handled functionally, a new object is returned on
+    each invocation to the satisfaction judgment. Thus, there is no notion of
+    references or object identities in this calculus. And we don't need to keep
+    track the object identities environment.
+\end{enumerate}
+
+\begin{figure*}[t]
   \centering
+  \begin{spreadlines}{10pt}
   \begin{gather*}
     \infer[\textsc{sat-eq}]
     {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \{o\}}
-    {[o/x]a_1 \rightsquigarrow v_1  &  [o/x]a_2 \to v_2  &  v_1 \sim v_2}\\
+    {   [o/x]a_1 \twoheadrightarrow v_1 \in \mathcal{A}
+      & [o/x]a_2 \twoheadrightarrow v_2 \in \mathcal{A}
+      & v_1 \sim v_2}\\
     \infer[\textsc{sat-empty}]
     {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \varnothing}
-    {[o/x]a_1 \in A  &  [o/x]a_2 \in A  &  [o/x]a_1 \rightsquigarrow v_1
-       &  [o/x]a_2 \rightsquigarrow v_2  &  v_1 \not\sim v_2}\\
+    {   [o/x]a_1 \in \mathcal{A}
+      & [o/x]a_2 \in \mathcal{A}
+      & [o/x]a_1 \twoheadrightarrow v_1
+      & [o/x]a_2 \twoheadrightarrow v_2
+      & v_1 \not\sim v_2}\\
     \infer[\textsc{sat-update}_1]
-    {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \{o'\}}
-    {l = [o/x]a_1  & [o/x]a_2 \rightsquigarrow v & l \not\in FV([o/x]a_2) & o.l \Leftarrow \varsigma(\rho(x)) v \to o'}\\
+    {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \{o.l \Leftarrow \varsigma(z) . v_1\}}
+    {\deduce
+      {o.l = [o/x]a_1}
+      {l \not\in FV([o/x]a_2)}
+      &
+      \deduce
+      {l \text{ is a label in } o}
+      {[o/x]a_2 \to v_2}
+      & v_2 \sim v_1}\\
     \infer[\textsc{sat-update}_2]
-    {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \{o'\}}
-    {\deduce{[o/x]a_1 = \hat{a}_1 \text{ is not a label or a variable}}{l =
-        [o/x]a_2 & l \not\in FV(\hat{a}_1) & \hat{a}_1 \rightsquigarrow v} &
-      o.l \Leftarrow \varsigma(\rho(x)) v \rightsquigarrow o'}\\
+    {o(\iota(x) . a_1 \sim a_2) \models_{\solver} \{o.l \Leftarrow \varsigma(z) . v_2\}}
+    {\deduce
+      {v_1 \text{ is not a label or a variable}}
+      {l \text{ is a label in } o}
+      &
+      \deduce
+      {o.l = [o/x]a_2}
+      {l \not\in FV(\hat{a}_1)}
+      &
+      \deduce
+      {\hat{a}_1 \to v_1}
+      {v_1 \sim v_2}}\\
   \end{gather*}
+  \end{spreadlines}
   \caption{Satisfaction Judgment}
   \label{Oc:sat}
 \end{figure*}
 
-Thus, the judgment is an externalization of that semantic map, hiding away the
-computational contents in interpreting constraints.\\
-
-We may sometimes want to construct a new construct $c$ by combining several
-constraints $\{c_i\}_{i \in I}$, aside from creating a new object with all of
-$c_i$ inserted, we may also internalize it using first-order connectives we've
-defined earlier.  Thus, it inspires us to define the following auxiliary
-functions:
-
-\begin{align*}
-  (\iota(x) . e_1) \otimes (\iota(x) . e_2) \triangleq \iota(x) . e_1 \land e_2\\
-  (\iota(x) . e_1) \oplus (\iota(x) . e_2) \triangleq \iota(x) . e_1 \vee e_2\\
-\end{align*}
-
-
-\subsubsection{Semantics of First-order constraints}
-
-\begin{figure*}[h]
+\begin{figure*}[t]
   \centering
+  \begin{spreadlines}{10pt}
+  \begin{gather*}
+    \infer[\textsc{sat-conj}]
+    {o(\iota(x) . e_1 \land e_2) \models_{\solver} S}
+    {o(\iota(x) . e_1) \models_{\solver} S_1
+      & S_1(\iota(x) . e_2) \models_{\solver} S}\\
+    \infer[\textsc{sat-disj}]
+    {o(\iota(x) . e_1 \vee e_2) \models_{\solver} S_1 \cup S_2}
+    {o(\iota(x) . e_1) \models_{\solver} S_1
+      & o(\iota(x) . e_2) \models_{\solver} S_2}\\
+    \infer[\textsc{sat-neg}_1]
+    {o(\iota(x) . \neg e) \models_{\solver} \varnothing}
+    {o(\iota(x) . e) \models_{\solver} S
+      & o \in S}\\
+    \infer[\textsc{sat-neg}_2]
+    {o(\iota(x) . \neg e) \models_{\solver}  \{o\} }
+    {o(\iota(x) . \neg e) \models_{\solver} \varnothing}
+  \end{gather*}
+  \end{spreadlines}
   \caption{Satisfaction Judgment on First-order Constraints}
   \label{Oc:sat-foc}
 \end{figure*}
 
+\subsection{Operational Semantics: Reduction}
 
-\subsection{Reduction}
+Now, we are ready to define the notion of reduction given the semantics of
+constraints. $o \rightarrowtail o'$ is a single step reduction between two
+top-level terms, $o \to o'$ is a single step reduction between two
+terms within a context and $\twoheadrightarrow$ is the reflexive, transitive
+closure of $\to$. The reduction judgment serves as the operational semantics of
+$\textbf{O}_c$.
 
-
-\begin{defn}[Reduction]
-  
-\end{defn}
-
-\begin{figure*}[h]
+\begin{figure*}[t]
   \centering
+  \begin{spreadlines}{10pt}
   \begin{gather*}
     \infer[\textsc{red-m-invoke}]{[l_i = \varsigma(x) . b_i , r_j = c_j].l_k
       \rightarrowtail [[l_i = \varsigma(x) . b_i , r_i = c_i]_{\substack{i \in [n]\\j \in [m]}} / x] b_k}{}\\
     \infer[\textsc{red-c-invoke}]
     {[l_i = \varsigma(x) . b_i , r_j = c_j].c_k \rightarrowtail o'}
-    {[l_i = \varsigma(x) . b_i , r_j = c_j](c_k) \models_{\solver} S & o' \in S}\\
+    {[l_i = \varsigma(x) . b_i , r_j = c_j](c_k) \models_{\solver} S
+      & o' \in S}\\
     \infer[\textsc{red-m-update}]
     {[l_i = \varsigma(x) . b_i , r_j = c_j].l_k \Leftarrow \varsigma(x) . b
       \rightarrowtail o'}
     {[l_k = \varsigma(x) . b , l_{i \neq k} = \varsigma(x) . b_i , r_j =
-      c_j](c_1 \otimes \cdots \otimes c_m) \models_{\solver} S & o' \in S}\\
+      c_j](\bigotimes_{i \in [m]} c_i ) \models_{\solver} S
+      & o' \in S}\\
     \infer[\textsc{red-c-update}]
     {[l_i = \varsigma(x) . b_i , r_j = c_j].c_k \Leftarrow c \rightarrowtail o'}
-    {[l_i = \varsigma(x) . b_i , r_{j \neq k} = c_j , r_k = c](c)
-      \models_{\solver} S & o' \in S}\\
+    {[l_i = \varsigma(x) . b_i , r_{j \neq k} = c_j , r_k = c](c) \models_{\solver} S
+      & o' \in S}\\
     \infer[\textsc{red-congr}]
-    {\ctxt{a} \rightsquigarrow \ctxt{a'}}
+    {\ctxt{a} \to \ctxt{a'}}
     {a \rightarrowtail a'}
   \end{gather*}
+  \end{spreadlines}
   \caption{Reduction relation in $\textbf{O}_c$}
   \label{Oc:reduction}
 \end{figure*}
+
+Now having defined both the satisfaction judgment and the reduction relation, we
+present several examples of derivations in the calculus to provide some
+intuitions.
+
+\begin{exa}
+  Suppose we are working over algebra $\mathbb{N}/_{7}$ - modular arithmetic over
+  natural numbers (similar to $\mathbb{Z}/_{m}$ as we introduced in
+  \ref{E:modz} but on $\mathbb{N}$ instead of $\mathbb{Z}$). Suppose we have an
+  object $pt = [px = \varsigma(x) . (x . px) , py = \varsigma(x) . (x . py) , c
+  = \iota(x) . (x.px \sim x.py)]$, which represents a point whose $x$ and $y$
+  coordinates are congruent modulo $7$. We want to show the following reduction
+  is derivable in our calculus:
+  \[
+    pt.px \Leftarrow \varsigma(x) . 2 \twoheadrightarrow pt'
+  \]
+  where $pt' = [px = \varsigma(x) . 2 , py = \varsigma(x) . 9, c = \iota(x) .
+  (x.px \sim x.py)]$.
+\end{exa}
+
+\begin{proof}
+  Let $o = [px = \varsigma(x) . 2 , py = \varsigma(x) . (x.py), c = \iota(x) .
+  (x.px \sim x.py)]$. We first derive $pt.px \Leftarrow(x) . 2 \to o.py
+  \Leftarrow \varsigma(x) . 9$, then derive $o.py \Leftarrow \varsigma(x). 9 \to
+  pt'$, then by transitivity, we have our result.
+  \[
+    \infer[\textsc{red-m-update}]
+    {pt.px \Leftarrow \varsigma(x) . 2 \to o.py \Leftarrow \varsigma(x) . 9}
+    {\infer[\textsc{sat-update}_2]
+      {o(\iota(x) . (x.px \sim x.py)) \models_{\solverP{\mathbb{N}/_{7}}} \{o.py
+        \Leftarrow \varsigma(x) . 9\}}
+      {
+        \deduce
+        {
+          \deduce
+          {
+            \deduce
+            {
+              \deduce
+              {
+                [o/x](x.py) = o.py
+              }
+              {
+                [o/x](x.px) = o.px
+              }
+            }
+            {
+              py \notin FV(o.px)
+            }
+          }
+          {
+            py \text{ is a label in } o
+          }
+        }
+        {
+          2 \sim 9
+        }
+        &
+        \infer[\textsc{red-m-invoke}]
+        {o.px \rightarrowtail 2} {}
+      }
+    }
+  \]
+  \[
+    \infer[\textsc{red-m-update}]
+    {o.py \Leftarrow \varsigma(x) . 9 \to pt'}
+    {
+      \infer[\textsc{sat-eq}]
+      {
+        pt'(\iota(x) . (x.px \sim x.py)) \models \{pt'\}
+      }
+      {
+        \deduce
+        {[pt'/x](x.px) = pt'.px}
+        {[pt'/x](x.py) = pt'.py}
+        &
+        \deduce
+        {\infer{pt'.px \rightarrowtail 2}{}}
+        {\infer{pt'.px \rightarrowtail 9}{}}
+        &
+        2 \sim 9
+      }
+    }
+  \]
+\end{proof}
 
 \begin{thm}[monotonicity of objects]
   For any object $o = [l_i = \varsigma(x) . b_i , r_j = c_j]_{i \in [n], j \in [m]}$, given any
   constraint $c$, indices $p,q \in [m]$, if $o(c_p) \models_{\solver} S$ and $o.r_q
   \Leftarrow c \rightarrowtail o'$, then $o' \in S$.
 \end{thm}
-
-
-\subsection{Operational Semantics}

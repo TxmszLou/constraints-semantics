@@ -1,5 +1,261 @@
 \section{Typing the Pure Calculus}
 
+In this section, we will type the untyped calculus $\textbf{O}_c$ as defined in the previous
+section, and prove the reduction judgment preserves typing relation (subject
+reduction). We will first type the core calculus (with familiar record typing),
+and then extend the calculus with object-oriented features such as inheritance
+and a formulation of dynamic constraint dispatch.
+
+\subsection{Typing the Core Calculus}
+
+The $\textbf{O}_{ct}$, the type system induced from the core calculus will be
+really familiar to those who have implemented objects using records in
+functional languages. This type system is similar to usual record semantics in
+the sense that (1) we are not dealing with object identities or references (2)
+state updates are all handled functionally (i.e. on every method update or
+constraint satisfaction, a new object with desired fields are returned) and (3)
+we have restricted ourselves to only solve $\sim$-constraints between primitive
+terms in a given algebra (so that there are no higher-order unification
+happening).\\
+
+\begin{figure*}[t]
+  \centering
+  \begin{alignat*}{3}
+    \begin{aligned}
+      A,B & ::=                     && \text{types}\\
+          & \mathcal{A}             && \quad \text{atomic types}\\
+          & [l_i : B_i , r_j : C_j] && \quad \text{object type}\\
+          & Id(\mathcal{A})         && \quad \text{Identity Type in } \mathcal{A}\\
+    \end{aligned}
+    \quad
+    \begin{aligned}
+      \Gamma & ::= && \text{Context}\\
+             & \langle  \rangle && \quad \text{empty context}\\
+             & \Gamma , x : A   && \quad \text{context augmentation}
+    \end{aligned}
+  \end{alignat*}
+  \caption{Syntax of types $\textbf{O}_{ct}$ under theory $\mathcal{T}$ on algebra $\mathcal{A}$}
+  \label{Oct:syntax}
+\end{figure*}
+
+In addition to the syntax of types presented in \ref{Oct:syntax}, we also need
+to modify the syntax for terms from $\textbf{O}_c$ to $\textsc{O}_{ct}$ by
+annotating types in methods. Therefore, what was of the form $\varsigma(x) . b$
+before should be annotated into term of the form $\varsigma(x : A) . b$, where
+$A$ is the type of the object $x$ binds to.
+
+\begin{figure*}[h]
+  \centering
+  \begin{spreadlines}{10pt}
+  \begin{gather*}
+    \infer[\textsc{ctxt-empty}]
+    {\ectxt \vdash}
+    {}
+    \quad
+    \infer[\textsc{ctxt-aug}]
+    {\Gamma , x : A \vdash}
+    {\Gamma \vdash A}
+    \quad
+    \infer[\textsc{ty-atomic}]
+    {\Gamma \vdash \mathcal{A}}
+    {}\\
+    \infer[\textsc{ty-id}]
+    {\Gamma \vdash Id(\mathcal{A})}
+    {}
+    \quad
+    \infer[\textsc{ty-obj}]
+    {\Gamma \vdash [l_1 : B_1 , \ldots , l_n : B_n]}
+    {\Gamma \vdash B_i  \qquad \forall i \in [n]}\\
+    \infer[\textsc{id-refl}]
+    {\Gamma \vdash a \sim b : Id(\mathcal{A})}
+    {\Gamma \vdash a : \mathcal{A}
+      & \Gamma \vdash b : \mathcal{A}}
+    \quad
+    \infer[\textsc{id-trans}]
+    {\Gamma \vdash a_1 \sim a_3 : Id(\mathcal{A})}
+    {\Gamma \vdash a_1 \sim a_2 : Id(\mathcal{A})
+      & \Gamma \vdash a_2 \sim a_3 : Id(\mathcal{A})}
+    \quad
+    \infer[\textsc{id-symm}]
+    {\Gamma \vdash a_2 \sim a_1 : Id(\mathcal{A})}
+    {\Gamma \vdash a_1 \sim a_2 : Id(\mathcal{A})}\\
+    % \infer[\textsc{id-atomic}]
+    % {t_1(a_1 , \ldots , a_n) \sim t_2(b_1 , \ldots , b_n) : Id(\mathcal{A})}
+    % { \Gamma \vdash t_1(a_1 , \ldots, a_n) : \mathcal{A}
+    %   & \Gamma \vdash t_2(b_1 , \ldots , b_n) : \mathcal{A}
+    % }
+    % \quad
+    % \infer[\textsc{id-var}_1]
+    % {\Gamma \vdash o.l \sim t(a_1 , \ldots , a_n) : Id(\mathcal{A})}
+    % {\Gamma \vdash o.l : \mathcal{A}
+    %   & \Gamma \vdash t(a_1, \ldots, a_n) \sim t(a_1, \ldots, a_n) : Id(\mathcal{A}) }\\
+    % \infer[\textsc{id-var}_2]
+    % {\Gamma \vdash t(a_1 , \ldots , a_n) \sim o.l : Id(\mathcal{A})}
+    % {\Gamma \vdash o.l : \mathcal{A}
+      % & \Gamma \vdash t(a_1, \ldots, a_n) \sim t(a_1, \ldots, a_n) :
+      % Id(\mathcal{A})}
+    % \quad
+    \infer[\textsc{id-neg}]
+    {\Gamma \vdash \neg e : Id(\mathcal{A})}
+    {\Gamma \vdash e : Id(\mathcal{A})}
+    \quad
+    \infer[\textsc{id-conj}]
+    {\Gamma \vdash e_1 \land e_2 : Id(\mathcal{A})}
+    {\Gamma \vdash e1 : Id(\mathcal{A}) & \Gamma \vdash e2 : Id(\mathcal{A})}
+    \quad
+    \infer[\textsc{id-disj}]
+    {\Gamma \vdash e_1 \vee e_2 : Id(\mathcal{A})}
+    {\Gamma \vdash e1 : Id(\mathcal{A}) & \Gamma \vdash e2 : Id(\mathcal{A})}\\
+    \infer[\textsc{tm-var}]
+    {\Gamma \vdash x : A}
+    {x : A \in \Gamma}
+    \quad
+    \infer[\textsc{tm-atomic}]
+    {\Gamma \vdash t(a_1, \ldots, a_n) : \mathcal{A}}
+    {t \in \mathscr{F}
+    & \Gamma \vdash a_i : \mathcal{A} \quad \forall i \in [n]}\\
+    \infer[\textsc{tm-obj}]
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = \iota(x : A) . e_j] : [l_i : B_i]}
+    {\Gamma , x : A \vdash b_i : B_i \ \forall i \in [n]
+      & \Gamma , x : A \vdash e_j : Id(\mathcal{A}) \ \forall j \in [m]
+      & A = [l_i : B_i]}\\
+    \infer[\textsc{tm-m-invoke}]
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j].l_k : B_k}
+    {\Gamma \vdash [l_i = \varsigma(x: A) . b_i , r_j = c_j] : [l_i : B_i]
+      & k \leq n}
+    \quad
+    \infer[\textsc{tm-c-invoke}]
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j] : Id(\mathcal{A})}
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j] : [l_i = B_i]}\\
+    \infer[\textsc{tm-m-update}]
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j].l_k \Leftarrow
+      \varsigma(x : A) . b : [l_i : B_i]}
+    {\Gamma , x : A \vdash b : B_k
+      & \Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j] : [l_i : B_i]}\\
+    \infer[\textsc{tm-c-update}]
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j].r_k \Leftarrow c :
+    [l_i : B_i]}
+    {\Gamma \vdash [l_i = \varsigma(x : A) . b_i , r_j = c_j] : [l_i : B_i]}
+  \end{gather*}
+  \end{spreadlines}
+  \caption{Typing Judgments in $\textbf{O}_{ct}$}
+  \label{Oct:typing}
+\end{figure*}
+
+Few comments on typing rules...\\
+
+\begin{lem}\label{L:bot}
+  For arbitrary object $o = [l_i = \varsigma(x : A) . b_i , r_i = c_i]$, if
+  field $l_k$ has method $\varsigma(x : A) . (x.l_k)$, then the field $l_k$ may
+  be typed by any type $B$. This will be the analogous notion of $Falsum$ (i.e.
+  bottom ``$\bot$'') in our calculus.
+\end{lem}
+
+\begin{proof}
+  Without loss of generality, suppose our object only has one method field named
+  $l$. Let $B$ be an arbitrary type, let $A = [l : B]$,
+  \[
+    \infer[\textsc{tm-obj}]
+    {\Gamma \vdash [l = \varsigma(x : A) . (x.l)] : [l : B]}
+    {\infer[\textsc{tm-m-invoke}]
+      {\Gamma , x : [l : B] \vdash x.l : B}
+      {\infer[\textsc{tm-var}]
+        {\Gamma , x : [l : B] \vdash x : [l : B]}
+        {}
+      }
+    }
+  \]
+\end{proof}
+
+
+In order for our calculus to even make sense (in a sense that typing rules
+interact well with other judgments), we need to prove several important
+property. One of which is to show our constraints satisfaction judgment as we
+defined in Section 2 preserves the typing judgment. Maybe we can call this
+subject satisfaction (in reference to subject reduction).\\
+
+Before we going into proof of the theorem, we define another syntactic apparatus, that is, the
+typing judgment for a set of objects. Let $S$ be a set of objects, $A$ is a
+type, we write $\Gamma \vdash S : A$ to mean for all $o \in S$, we have $\Gamma
+\vdash o : A$. This theorem is proved below:
+
+\begin{lem}[substitution preserves typing]\label{L:subst-typing}
+  Suppose our calculus was parametrized over algebra $\mathcal{A}$ and theory
+  $\mathcal{T}$. If $\Gamma , x : A \vdash t : T$ and $\ectxt \vdash v : A$,
+  then $\Gamma \vdash [v/x]t : T$.
+\end{lem}
+
+\begin{proof}
+  Induction on the structure of term $t$: we will only prove the case for
+  primitives here, rest of the cases all follows directly by the definition of
+  the substitution function and inductive hypotheses.
+  \begin{enumerate}
+    \item $t = t_1(a_1 , \ldots , a_n)$ for primitive term, since we have $\Gamma , x : A \vdash
+      t_1(a_1, \ldots , a_n) : T$, it must be the case that $T = \mathcal{A}$
+      and have premises:
+      \[
+        t \in \mathscr{F}
+        \quad \text{and} \quad
+        \Gamma , x : A \vdash a_i : \mathcal{A} \text{ for all } i \in [n]
+      \]
+      By IH, we have $\Gamma \vdash [v/x]a_i : \mathcal{A}$ for all $i \in [n]$.
+      Since by the definition of substitution, we have
+      \[
+        [v/x](t_1(a_1 \ldots , a_n)) = t_1([v/x]a_1 , \ldots , [v/x]a_n)
+      \]
+      therefore we have
+      \[
+        \infer[\textsc{tm-atomic}]
+        {\Gamma \vdash t_1([v/x]a_1 , \ldots , [v/x]a_n) : T}
+        {t_1 \in \mathscr{F}
+          & \Gamma \vdash [v/x]a_i : \mathcal{A} \quad \forall i \in [n]}
+      \]
+  \end{enumerate}
+\end{proof}
+
+\begin{thm}[subject satisfaction \& subject reduction]
+  Suppose our calculus was parametrized over algebra $\mathcal{A}$ and theory
+  $\mathcal{T}$.
+  \begin{enumerate}
+    \item If $o(\iota(x) . e) \models_{\solver} S$, $\Gamma \vdash e :
+      Id(\mathcal{A})$ and $\Gamma \vdash o : A$, then $\Gamma \vdash S : A$.
+    \item If $\Gamma \vdash e : A$ and $e \twoheadrightarrow e'$, then $\Gamma
+      \vdash e' : A$.
+  \end{enumerate}
+\end{thm}
+
+\begin{proof}
+  Mutually induction on the derivation of $o(\iota(x) . e) \models_{\solver} S$
+  and $\Gamma \vdash e : A$.
+  \begin{enumerate}
+    \item \textsc{sat-eq}, then $S = \{o\}$, $\Gamma \vdash o : A$ by assumption.
+    \item \textsc{sat-empty}, then $S = \varnothing$, this case is vacuously
+      true.
+    \item $\textsc{sat-update}_1$, then $e = a_1 \sim a_2$, $S = \{o.l
+      \Leftarrow \varsigma(z).v_1\}$, $[o/x]a_1 = o.l$, where $l$ is a label in
+      $o$, since $o$ was well-typed, suppose the field $l$ has type $B$. Then it
+      suffices to show $\Gamma , z : A \vdash v_1 : B$. Since the equation $a_1
+      \sim a_2$ well typed with type $Id(\mathcal{A})$, we must have $\Gamma
+      \vdash a_1 : \mathcal{A}$ and $\Gamma \vdash a_2 : \mathcal{A}$. By
+      \Cref{L:subst-typing} we have both $\Gamma \vdash o.l : \mathcal{A}$ and
+      $\Gamma \vdash [o/x]a_2 : \mathcal{A}$. By the subject reduction mutual
+      inductive hypothesis, we have $\Gamma \vdash v_2 : \mathcal{A}$. By
+      transitivity of $\sim$-relation, we have $v_1 : \mathcal{A}$ as wanted.
+      % \begin{align*}
+      %   v_1 \sim 
+      % \end{align*}
+      % with $o.l = [o/x]a_1$. Induction on
+      % the judgment $\Gamma \vdash e : Id(\mathcal{A})$ together with the fact
+      % that $o.l = [o/x]a_i$ gives us only one case to consider:
+      % $\textsc{id-var}_1$. Then we have $\Gamma \vdash a_2 \in \mathcal{A}$, thus
+      % $\Gamma \vdash [o/x]a_2 : \mathcal{A}$. Therefore, applying
+      % \textsc{tm-m-update} gives us the conclusion $\Gamma \vdash o.l \Leftarrow
+      % \varsigma(z) . [o/x]a_2 : A$.
+  \end{enumerate}
+\end{proof}
+
+\subsection{Subtyping}
+
 \subsection{Inheritance}
 
 \subsection{Constraint Dispatch}
